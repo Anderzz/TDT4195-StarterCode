@@ -22,8 +22,34 @@ def convolve_im(im, kernel,
         [type]: [np.array of shape [H, W, 3]. should be same as im]
     """
     assert len(im.shape) == 3
+    """ #apply cross correlation
+    kernel = np.flipud(np.fliplr(kernel))
+    #find the size of the output image
+    x_out = int(im.shape[0]-kernel.shape[0]+1)
+    y_out = int(im.shape[1]-kernel.shape[1]+1)
+    output = np.zeros((x_out, y_out, 3))
+    for rgb in im[:,:]:
+        for y in range (im.shape[1]):
+            if y > im.shape[1]-kernel.shape[1]:
+                break
+            for x in range(im.shape[0]):
+                if x > im.shape[0]-kernel.shape[0]:
+                    break
+                try:
+                    output[x,y,rgb] = (kernel*im[x: x+kernel.shape[0], y: y+kernel.shape[1]], rgb).sum()
+                except:
+                    break """
+    m, n = kernel.shape
+    if (m == n):
+        y, x = im.shape[0:2]
+        y = y - m + 1
+        x = x - m + 1
+        new_image = np.zeros((y,x))
+        for i in range(y):
+            for j in range(x):
+                new_image[i][j] = np.sum(im[i:i+m, j:j+m]*kernel)
 
-    return im
+    return output
 
 
 if __name__ == "__main__":
@@ -46,6 +72,11 @@ if __name__ == "__main__":
     save_im(output_dir.joinpath("im_smoothed.jpg"), im_smoothed)
     im_sobel = convolve_im(im, sobel_x)
     save_im(output_dir.joinpath("im_sobel.jpg"), im_sobel)
+
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(normalize(im_sobel))
+    plt.show()
 
     # DO NOT CHANGE. Checking that your function returns as expected
     assert isinstance(
