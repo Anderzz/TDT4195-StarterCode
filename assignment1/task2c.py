@@ -1,3 +1,4 @@
+from PIL.Image import new
 import matplotlib.pyplot as plt
 import pathlib
 import numpy as np
@@ -22,34 +23,28 @@ def convolve_im(im, kernel,
         [type]: [np.array of shape [H, W, 3]. should be same as im]
     """
     assert len(im.shape) == 3
-    """ #apply cross correlation
+    #flip the kernel in order to use cross correlation instead
     kernel = np.flipud(np.fliplr(kernel))
-    #find the size of the output image
-    x_out = int(im.shape[0]-kernel.shape[0]+1)
-    y_out = int(im.shape[1]-kernel.shape[1]+1)
-    output = np.zeros((x_out, y_out, 3))
-    for rgb in im[:,:]:
-        for y in range (im.shape[1]):
-            if y > im.shape[1]-kernel.shape[1]:
-                break
-            for x in range(im.shape[0]):
-                if x > im.shape[0]-kernel.shape[0]:
-                    break
-                try:
-                    output[x,y,rgb] = (kernel*im[x: x+kernel.shape[0], y: y+kernel.shape[1]], rgb).sum()
-                except:
-                    break """
-    m, n = kernel.shape
-    if (m == n):
-        y, x = im.shape[0:2]
-        y = y - m + 1
-        x = x - m + 1
-        new_image = np.zeros((y,x))
-        for i in range(y):
-            for j in range(x):
-                new_image[i][j] = np.sum(im[i:i+m, j:j+m]*kernel)
-
-    return output
+    #get the dimensions of the image and kernel
+    kernel_y = kernel.shape[0]
+    kernel_x = kernel.shape[1]
+    im_y = im.shape[0]
+    im_x = im.shape[1]
+    #create a new blank image with same shape as input
+    new_im = np.zeros_like(im)
+    #find the center of the kernel
+    kernel_center = (int(kernel_y/2), int(kernel_x/2))
+    #use zero-padding
+    im_padded = np.zeros((im_y + kernel_y - 1, im_x + kernel_x - 1, 3))
+    for color in range (3):
+        im_padded[kernel_center[0]:-kernel_center[0], kernel_center[1]:-kernel_center[1], color] = im[:,:, color]
+    
+    #convolve
+    for color in range (3):
+        for y in range (im_y):
+            for x in range (im_x):
+                new_im[y, x, color] = np.sum((kernel * im_padded[y:y+kernel_y, x:x+kernel_x, color]))
+    return new_im
 
 
 if __name__ == "__main__":
@@ -72,11 +67,6 @@ if __name__ == "__main__":
     save_im(output_dir.joinpath("im_smoothed.jpg"), im_smoothed)
     im_sobel = convolve_im(im, sobel_x)
     save_im(output_dir.joinpath("im_sobel.jpg"), im_sobel)
-
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(normalize(im_sobel))
-    plt.show()
 
     # DO NOT CHANGE. Checking that your function returns as expected
     assert isinstance(
