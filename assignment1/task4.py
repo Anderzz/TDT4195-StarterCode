@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
 import tqdm
 import numpy as np
 import utils
@@ -16,6 +17,7 @@ batch_size = 64
 
 image_transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize(0.5, 0.5)
 ])
 
 dataloader_train, dataloader_test = dataloaders.load_dataset(
@@ -73,10 +75,25 @@ trainer = Trainer(
 )
 train_loss_dict, test_loss_dict = trainer.train(num_epochs)
 
+#task 4b, show the weights as images
+weights = list(model.children())[1].weight.cpu().data
+grid = ImageGrid(plt.figure(), 
+                    111,  
+                    nrows_ncols = (5, 2), 
+                    axes_pad = 0.15
+                    )
+for i, weigth in enumerate(weights):
+    weigth = weigth.reshape(28,28)
+    grid[i].imshow(weigth, cmap='gray')
+plt.savefig("image_solutions/task_4b2.png")
+plt.show()
+
+
 
 # We can now plot the training loss with our utility script
 
 # Plot loss
+plt.figure()
 utils.plot_loss(train_loss_dict, label="Train Loss")
 utils.plot_loss(test_loss_dict, label="Test Loss")
 # Limit the y-axis of the plot (The range should not be increased!)
@@ -105,12 +122,19 @@ torch.random.manual_seed(0)
 np.random.seed(0)
 
 
+
+
 dataloader_train, dataloader_test = dataloaders.load_dataset(
     batch_size, image_transform)
 model = create_model()
+#check if normalized for 4a
+example_images, _ = next(iter(dataloader_train))
+print(f"The tensor containing the images has shape: {example_images.shape} (batch size, number of color channels, height, width)",
+      f"The maximum value in the image is {example_images.max()}, minimum: {example_images.min()}", sep="\n\t")
+
 
 learning_rate = .0192
-num_epochs = 6
+#num_epochs = 6
 
 # Redefine optimizer, as we have a new model.
 optimizer = torch.optim.SGD(model.parameters(),
@@ -123,17 +147,18 @@ trainer = Trainer(
     loss_function=loss_function,
     optimizer=optimizer
 )
-train_loss_dict_6epochs, test_loss_dict_6epochs = trainer.train(num_epochs)
-num_epochs = 5
+train_loss_dict_normalized, test_loss_dict_6epochs = trainer.train(num_epochs)
+#num_epochs = 5
+
 
 
 # We can now plot the two models against eachother
 
 # Plot loss
-utils.plot_loss(train_loss_dict_6epochs,
-                label="Train Loss - Model trained with 6 epochs")
+utils.plot_loss(train_loss_dict_normalized,
+                label="Train Loss - Model trained with normalized images")
 utils.plot_loss(test_loss_dict_6epochs,
-                label="Test Loss - Model trained with 6 epochs")
+                label="Test Loss - Model trained with normalized images")
 utils.plot_loss(train_loss_dict, label="Train Loss - Original model")
 utils.plot_loss(test_loss_dict, label="Test Loss - Original model")
 # Limit the y-axis of the plot (The range should not be increased!)
