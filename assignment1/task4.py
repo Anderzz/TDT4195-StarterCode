@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
+from torch.nn.modules.linear import Linear
 import tqdm
 import numpy as np
 import utils
@@ -17,6 +18,7 @@ batch_size = 64
 
 image_transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
+    #normalize is applied after 4a
     torchvision.transforms.Normalize(0.5, 0.5)
 ])
 
@@ -75,6 +77,7 @@ trainer = Trainer(
 )
 train_loss_dict, test_loss_dict = trainer.train(num_epochs)
 
+"""
 #task 4b, show the weights as images
 weights = list(model.children())[1].weight.cpu().data
 grid = ImageGrid(plt.figure(), 
@@ -87,6 +90,7 @@ for i, weigth in enumerate(weights):
     grid[i].imshow(weigth, cmap='gray')
 plt.savefig("image_solutions/task_4b2.png")
 plt.show()
+"""
 
 
 
@@ -97,7 +101,7 @@ plt.figure()
 utils.plot_loss(train_loss_dict, label="Train Loss")
 utils.plot_loss(test_loss_dict, label="Test Loss")
 # Limit the y-axis of the plot (The range should not be increased!)
-plt.ylim([0, 1])
+plt.ylim([0, 10])
 plt.legend()
 plt.xlabel("Global Training Step")
 plt.ylabel("Cross Entropy Loss")
@@ -121,19 +125,33 @@ print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
 torch.random.manual_seed(0)
 np.random.seed(0)
 
-
+#new model creator for 4d that adds a hidden layer
+def create_model_deeper():
+    """
+        Initializes the mode. Edit the code below if you would like to change the model.
+    """
+    model = nn.Sequential(
+        nn.Flatten(),  # Flattens the image from shape (batch_size, C, Height, width) to (batch_size, C*height*width)
+        nn.Linear(28*28*1, 64),
+        nn.ReLU(),
+        nn.Linear(64,10)
+        # No need to include softmax, as this is already combined in the loss function
+    )
+    # Transfer model to GPU memory if a GPU is available
+    model = utils.to_cuda(model)
+    return model
 
 
 dataloader_train, dataloader_test = dataloaders.load_dataset(
     batch_size, image_transform)
-model = create_model()
+model = create_model_deeper()
 #check if normalized for 4a
 example_images, _ = next(iter(dataloader_train))
 print(f"The tensor containing the images has shape: {example_images.shape} (batch size, number of color channels, height, width)",
       f"The maximum value in the image is {example_images.max()}, minimum: {example_images.min()}", sep="\n\t")
 
 
-learning_rate = .0192
+#learning_rate = .0192
 #num_epochs = 6
 
 # Redefine optimizer, as we have a new model.
@@ -156,9 +174,9 @@ train_loss_dict_normalized, test_loss_dict_6epochs = trainer.train(num_epochs)
 
 # Plot loss
 utils.plot_loss(train_loss_dict_normalized,
-                label="Train Loss - Model trained with normalized images")
+                label="Train Loss - Model trained with a hidden layer")
 utils.plot_loss(test_loss_dict_6epochs,
-                label="Test Loss - Model trained with normalized images")
+                label="Test Loss - Model trained with a hidden layer")
 utils.plot_loss(train_loss_dict, label="Train Loss - Original model")
 utils.plot_loss(test_loss_dict, label="Test Loss - Original model")
 # Limit the y-axis of the plot (The range should not be increased!)
