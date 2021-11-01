@@ -131,6 +131,7 @@ plt.ylim([0, 0.1])
 plt.legend()
 plt.xlabel("Global Training Step")
 plt.ylabel("Cross Entropy Loss")
-plt.savefig("image_solutions/task_4a.png")
+plt.savefig(utils.image_output_dir.joinpath("task2b.png"))
+#plt.savefig("image_solutions/task_2b.png")
 
 plt.show()
