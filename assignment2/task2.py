@@ -88,6 +88,7 @@ final_loss, final_acc = utils.compute_loss_and_accuracy(
     dataloader_test, model, loss_function)
 print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
 
+## for the adam optmizer
 torch.random.manual_seed(0)
 np.random.seed(0)
 # Hyperparameters
@@ -142,7 +143,7 @@ utils.plot_loss(test_loss_dict_sgd,
 utils.plot_loss(train_loss_dict_adam, label="Train Loss - Model trained with Adam as optimizer")
 utils.plot_loss(test_loss_dict_adam, label="Test Loss - Model trained with Adam as optimizer")
 # Limit the y-axis of the plot (The range should not be increased!)
-plt.ylim([0, 0.5])
+plt.ylim([0, 0.15])
 plt.legend()
 plt.xlabel("Global Training Step")
 plt.ylabel("Cross Entropy Loss")
