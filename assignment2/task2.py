@@ -63,7 +63,7 @@ assert output.shape == expected_shape,    f"Expected shape: {expected_shape}, bu
 
 
 # Hyperparameters
-learning_rate = .001
+learning_rate = .01
 num_epochs = 5
 
 
@@ -84,8 +84,18 @@ trainer_sgd = Trainer(
     optimizer=optimizer_sgd
 )
 train_loss_dict_sgd, test_loss_dict_sgd = trainer_sgd.train(num_epochs)
+final_loss, final_acc = utils.compute_loss_and_accuracy(
+    dataloader_test, model, loss_function)
+print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
 
-# Define optimizer (Adam))
+torch.random.manual_seed(0)
+np.random.seed(0)
+dataloader_train, dataloader_test = dataloaders.load_dataset(
+    batch_size, image_transform)
+example_images, _ = next(iter(dataloader_train))
+print(f"The tensor containing the images has shape: {example_images.shape} (batch size, number of color channels, height, width)",
+      f"The maximum value in the image is {example_images.max()}, minimum: {example_images.min()}", sep="\n\t")
+# Define optimizer (Adam)
 optimizer_adam = torch.optim.Adam(model.parameters(),
                             lr=learning_rate)
 
@@ -99,7 +109,9 @@ trainer_adam = Trainer(
     optimizer=optimizer_adam
 )
 train_loss_dict_adam, test_loss_dict_adam = trainer_adam.train(num_epochs)
-
+final_loss, final_acc = utils.compute_loss_and_accuracy(
+    dataloader_test, model, loss_function)
+print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
 
 # We can now plot the training loss with our utility script
 
