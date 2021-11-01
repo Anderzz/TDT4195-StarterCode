@@ -63,7 +63,7 @@ assert output.shape == expected_shape,    f"Expected shape: {expected_shape}, bu
 
 
 # Hyperparameters
-learning_rate = .001
+learning_rate = .02
 num_epochs = 5
 
 
@@ -90,6 +90,9 @@ print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
 
 torch.random.manual_seed(0)
 np.random.seed(0)
+# Hyperparameters
+learning_rate = .001
+num_epochs = 5
 dataloader_train, dataloader_test = dataloaders.load_dataset(
     batch_size, image_transform)
 example_images, _ = next(iter(dataloader_train))
