@@ -71,14 +71,20 @@ def torch_image_to_numpy(image: torch.Tensor):
 # plt.subplot is a nice function to use for this task!
 # Tip: test out for indices = [01,2,3,4,5] to check that your result is correct!
 indices = [5, 8, 19, 22, 34]
+#ind = [1, 2, 3, 4, 5]
 num_filters = len(indices)
 # %%
 plt.figure(figsize=(20, 4))
 n = 1
 for i in indices:
     plt.subplot(2, num_filters, n)
+    im1 = torch_image_to_numpy(weight[i])
+    plt.imshow(im1, cmap='gray')
     # Plot weight here
     plt.subplot(2, num_filters, num_filters+n)
     # Plot activation here
+    im2 = torch_image_to_numpy(activation[0][i])
+    plt.imshow(im2, cmap='gray')
     n += 1
 ### END YOUR CODE HERE ###
+plt.show()
