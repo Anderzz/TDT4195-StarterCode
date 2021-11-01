@@ -63,7 +63,7 @@ assert output.shape == expected_shape,    f"Expected shape: {expected_shape}, bu
 
 
 # Hyperparameters
-learning_rate = .02
+learning_rate = .001
 num_epochs = 5
 
 
@@ -71,24 +71,39 @@ num_epochs = 5
 loss_function = torch.nn.CrossEntropyLoss()
 
 # Define optimizer (Stochastic Gradient Descent)
-optimizer = torch.optim.SGD(model.parameters(),
+optimizer_sgd = torch.optim.SGD(model.parameters(),
                             lr=learning_rate)
 
 
-trainer = Trainer(
+trainer_sgd = Trainer(
     model=model,
     dataloader_train=dataloader_train,
     dataloader_test=dataloader_test,
     batch_size=batch_size,
     loss_function=loss_function,
-    optimizer=optimizer
+    optimizer=optimizer_sgd
 )
-train_loss_dict, test_loss_dict = trainer.train(num_epochs)
+train_loss_dict_sgd, test_loss_dict_sgd = trainer_sgd.train(num_epochs)
+
+# Define optimizer (Adam))
+optimizer_adam = torch.optim.Adam(model.parameters(),
+                            lr=learning_rate)
+
+
+trainer_adam = Trainer(
+    model=model,
+    dataloader_train=dataloader_train,
+    dataloader_test=dataloader_test,
+    batch_size=batch_size,
+    loss_function=loss_function,
+    optimizer=optimizer_adam
+)
+train_loss_dict_adam, test_loss_dict_adam = trainer_adam.train(num_epochs)
 
 
 # We can now plot the training loss with our utility script
 
-# Plot loss
+"""# Plot loss
 utils.plot_loss(train_loss_dict, label="Train Loss")
 utils.plot_loss(test_loss_dict, label="Test Loss")
 # Limit the y-axis of the plot (The range should not be increased!)
@@ -101,4 +116,21 @@ plt.show()
 
 final_loss, final_acc = utils.compute_loss_and_accuracy(
     dataloader_test, model, loss_function)
-print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")
+print(f"Final Test loss: {final_loss}. Final Test accuracy: {final_acc}")"""
+
+#plot the 2 models together
+#
+utils.plot_loss(train_loss_dict_sgd,
+                label="Train Loss - Model trained with SGD as optimizer")
+utils.plot_loss(test_loss_dict_sgd,
+                label="Test Loss - Model trained with SGD as optimizer")
+utils.plot_loss(train_loss_dict_adam, label="Train Loss - Model trained with SGD as optimizer")
+utils.plot_loss(test_loss_dict_adam, label="Test Loss - Model trained with SGD as optimizer")
+# Limit the y-axis of the plot (The range should not be increased!)
+plt.ylim([0, 0.1])
+plt.legend()
+plt.xlabel("Global Training Step")
+plt.ylabel("Cross Entropy Loss")
+plt.savefig("image_solutions/task_4a.png")
+
+plt.show()
