@@ -3,6 +3,10 @@ import numpy as np
 import skimage
 import utils
 
+def magnitude(fft_im):
+    real = fft_im.real
+    imag = fft_im.imag
+    return np.sqrt(real**2 + imag**2)
 
 def convolve_im(im: np.array,
                 fft_kernel: np.array,
@@ -21,7 +25,16 @@ def convolve_im(im: np.array,
         im: np.array of shape [H, W]
     """
     # START YOUR CODE HERE ### (You can change anything inside this block)
-    conv_result = im
+    im_fourier = np.fft.fft2(im)
+    conved_im_fourier = im_fourier * fft_kernel
+
+    viz_im = np.fft.fftshift(np.log(magnitude(im_fourier)+1))
+    viz_im_conved = np.fft.fftshift(np.log(magnitude(conved_im_fourier)+1))
+    #viz_im_conved = np.fft.fftshift(conved_im_fourier)
+    #viz_im_conved = np.log(magnitude(conved_im_fourier)+1)
+    
+
+    conv_result = np.fft.ifft2(conved_im_fourier).real
     if verbose:
         # Use plt.subplot to place two or more images beside eachother
         plt.figure(figsize=(20, 4))
@@ -30,10 +43,13 @@ def convolve_im(im: np.array,
         plt.imshow(im, cmap="gray")
         plt.subplot(1, 5, 2)
         # Visualize FFT
+        plt.imshow(viz_im, cmap="gray")
         plt.subplot(1, 5, 3)
         # Visualize FFT kernel
+        plt.imshow(fft_kernel, cmap="gray")
         plt.subplot(1, 5, 4)
         # Visualize filtered FFT image
+        plt.imshow(viz_im_conved, cmap="gray")
         plt.subplot(1, 5, 5)
         # Visualize filtered spatial image
         plt.imshow(conv_result, cmap="gray")
@@ -57,7 +73,7 @@ if __name__ == "__main__":
         im, radius=50)
     image_high_pass = convolve_im(im, frequency_kernel_high_pass,
                                   verbose=verbose)
-
+    #print(frequency_kernel_high_pass)
     if verbose:
         plt.show()
     utils.save_im("camera_low_pass.png", image_low_pass)
