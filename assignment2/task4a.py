@@ -28,11 +28,9 @@ def convolve_im(im: np.array,
     im_fourier = np.fft.fft2(im)
     conved_im_fourier = im_fourier * fft_kernel
 
+    viz_kernel_fft = np.fft.fftshift(np.log(magnitude(fft_kernel)+1))
     viz_im = np.fft.fftshift(np.log(magnitude(im_fourier)+1))
     viz_im_conved = np.fft.fftshift(np.log(magnitude(conved_im_fourier)+1))
-    #viz_im_conved = np.fft.fftshift(conved_im_fourier)
-    #viz_im_conved = np.log(magnitude(conved_im_fourier)+1)
-    
 
     conv_result = np.fft.ifft2(conved_im_fourier).real
     if verbose:
@@ -46,7 +44,7 @@ def convolve_im(im: np.array,
         plt.imshow(viz_im, cmap="gray")
         plt.subplot(1, 5, 3)
         # Visualize FFT kernel
-        plt.imshow(fft_kernel, cmap="gray")
+        plt.imshow(viz_kernel_fft, cmap="gray")
         plt.subplot(1, 5, 4)
         # Visualize filtered FFT image
         plt.imshow(viz_im_conved, cmap="gray")
