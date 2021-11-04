@@ -3,6 +3,10 @@ import numpy as np
 import skimage
 import utils
 
+def magnitude(fft_im):
+    real = fft_im.real
+    imag = fft_im.imag
+    return np.sqrt(real**2 + imag**2)
 
 def convolve_im(im: np.array,
                 kernel: np.array,
@@ -24,7 +28,25 @@ def convolve_im(im: np.array,
     """
     # START YOUR CODE HERE ### (You can change anything inside this block)
 
-    conv_result = im
+    #since kernel might be of different shape than the image
+    #we need to pad with the difference
+    x_pad = len(im[1])-len(kernel[1])
+    y_pad = len(im[0])-len(kernel[0])
+    kernel = np.pad(kernel, ((0, y_pad), (x_pad, 0)), 'constant', constant_values=(0,0))
+
+    #apply fft to both the kernel and image
+    im_fourier = np.fft.fft2(im)
+    kernel_fourier = np.fft.fft2(kernel)
+    #use the convolution theorem
+    conved_im_fourier = im_fourier * kernel_fourier
+
+    #shift DC component to center and apply log transform for visualization
+    viz_kernel_fft = np.fft.fftshift(np.log(magnitude(kernel_fourier)+1))
+    viz_im = np.fft.fftshift(np.log(magnitude(im_fourier)+1))
+    viz_im_conved = np.fft.fftshift(np.log(magnitude(conved_im_fourier)+1))
+
+    #shift back to spatial domain with inverse fft
+    conv_result = np.fft.ifft2(conved_im_fourier).real
 
     if verbose:
         # Use plt.subplot to place two or more images beside eachother
@@ -34,10 +56,13 @@ def convolve_im(im: np.array,
         plt.imshow(im, cmap="gray")
         plt.subplot(1, 5, 2)
         # Visualize FFT
+        plt.imshow(viz_im, cmap="gray")
         plt.subplot(1, 5, 3)
         # Visualize FFT kernel
+        plt.imshow(viz_kernel_fft, cmap="gray")
         plt.subplot(1, 5, 4)
         # Visualize filtered FFT image
+        plt.imshow(viz_im_conved, cmap="gray")
         plt.subplot(1, 5, 5)
         # Visualize filtered spatial image
         plt.imshow(conv_result, cmap="gray")
