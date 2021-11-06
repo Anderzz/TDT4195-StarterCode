@@ -1,3 +1,4 @@
+from numpy.fft import fft
 import skimage
 import skimage.io
 import skimage.transform
@@ -16,16 +17,29 @@ if __name__ == "__main__":
     # DO NOT CHANGE
     impath = os.path.join("images", "noisy_moon.png")
     im = utils.read_im(impath)
-    #plt.imshow(im, cmap="gray")
-    #plt.show()
     # START YOUR CODE HERE ### (You can change anything inside this block)
-    im_filtered = im
     fft_im = np.fft.fft2(im)
-    frequency_kernel_low_pass = utils.create_low_pass_frequency_kernel(im, radius=50)
-    #fft_im = fft_im*frequency_kernel_low_pass
+
+    #create a filter in the freq domain
+    #and shift it to line up
+    filter = np.ones_like(fft_im)
+    locy = len(filter)//2
+    locx = len(filter[1])//2
+    filter[locy-5:locy+5,:] = 0
+    filter[:,locx-10:locx+10] = 1
+    filter_shifted=np.fft.fftshift(magnitude(filter))
+
+    #apply the filter
+    im_filtered_fft = fft_im * filter_shifted
     viz_im = np.fft.fftshift(np.log(magnitude(fft_im)+1))
-    im_filtered = np.fft.ifft2(fft_im).real 
-    plt.imshow(viz_im, cmap="gray")
+    im_filtered = np.fft.ifft2(im_filtered_fft).real
+    plt.figure(figsize=(15, 10))
+    plt.subplot(1, 2, 1)
+    #visualize the filter
+    plt.imshow(filter.real, cmap="gray")
+    plt.subplot(1, 2, 2)
+    #visualize the result
+    plt.imshow(im_filtered, cmap="gray")
     plt.show()
     ### END YOUR CODE HERE ###
     utils.save_im("moon_filtered.png", utils.normalize(im_filtered))
