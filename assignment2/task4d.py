@@ -16,6 +16,11 @@ impaths = [
 ]
 
 
+def magnitude(fft_im):
+    real = fft_im.real
+    imag = fft_im.imag
+    return np.sqrt(real**2 + imag**2)
+
 def create_binary_image(im):
     """Creates a binary image from a greyscale image "im"
 
@@ -28,6 +33,13 @@ def create_binary_image(im):
 
     # START YOUR CODE HERE ### (You can change anything inside this block)
     binary_im = np.zeros_like(im, dtype=np.bool)
+    #find the fourier transform
+    fft = np.fft.fft2(im)
+    #shift it to the center and find its magnitude
+    fft = magnitude(np.fft.fftshift(fft))
+    #find the thresholding value by trail and error
+    threshold = np.mean(fft)*20
+    binary_im[fft > threshold] = True
     ### END YOUR CODE HERE ###
     return binary_im
 
