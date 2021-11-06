@@ -1,6 +1,7 @@
 import skimage
 import skimage.io
 import skimage.transform
+from skimage.filters import threshold_triangle
 import pathlib
 import numpy as np
 import utils
@@ -37,9 +38,9 @@ def create_binary_image(im):
     fft = np.fft.fft2(im)
     #shift it to the center and find its magnitude
     fft = magnitude(np.fft.fftshift(fft))
-    #find the thresholding value by trail and error
-    threshold = np.mean(fft)*20
-    binary_im[fft > threshold] = True
+    #find the thresholding value
+    threshold = threshold_triangle(fft)
+    binary_im[fft >= threshold] = True
     ### END YOUR CODE HERE ###
     return binary_im
 
