@@ -25,13 +25,16 @@ def convolve_im(im: np.array,
         im: np.array of shape [H, W]
     """
     # START YOUR CODE HERE ### (You can change anything inside this block)
-    im_fourier = np.fft.fft2(im)
-    conved_im_fourier = im_fourier * fft_kernel
 
+    #find the fft
+    im_fourier = np.fft.fft2(im)
+    #multiplication in fourier <==> convolution in spatial
+    conved_im_fourier = im_fourier * fft_kernel
+    #for visualization
     viz_kernel_fft = np.fft.fftshift(np.log(magnitude(fft_kernel)+1))
     viz_im = np.fft.fftshift(np.log(magnitude(im_fourier)+1))
     viz_im_conved = np.fft.fftshift(np.log(magnitude(conved_im_fourier)+1))
-
+    #remove the imaginary part caused by rounding
     conv_result = np.fft.ifft2(conved_im_fourier).real
     if verbose:
         # Use plt.subplot to place two or more images beside eachother
