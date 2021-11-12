@@ -41,6 +41,7 @@ def create_binary_image(im):
     #find the thresholding value
     threshold = threshold_triangle(fft)
     binary_im[fft >= threshold] = True
+    binary_im[fft < threshold] = False
     ### END YOUR CODE HERE ###
     return binary_im
 
