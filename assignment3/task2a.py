@@ -1,13 +1,26 @@
 import numpy as np
+from numpy.core.fromnumeric import argmax, mean
+from numpy.lib.function_base import average
 import skimage
 import utils
 import pathlib
+import matplotlib.pyplot as plt
+from skimage.filters import threshold_otsu
+
+def cum_mean(arr):
+    cum_sum = np.cumsum(arr, axis=0)    
+    for i in range(cum_sum.shape[0]):       
+        if i == 0:
+            continue        
+        #print(cum_sum[i] / (i + 1))
+        cum_sum[i] =  cum_sum[i] / (i + 1)
+    return cum_sum
 
 
 def otsu_thresholding(im: np.ndarray) -> int:
     """
-        Otsu's thresholding algorithm that segments an image into 1 or 0 (True or False)
-        The function takes in a grayscale image and outputs a boolean image
+        Uses the recipe on p751 in the book to 
+        find a threshold using Otsu's method
 
         args:
             im: np.ndarray of shape (H, W) in the range [0, 255] (dtype=np.uint8)
@@ -15,13 +28,23 @@ def otsu_thresholding(im: np.ndarray) -> int:
             (int) the computed thresholding value
     """
     assert im.dtype == np.uint8
-    # START YOUR CODE HERE ### (You can change anything inside this block)
-    # You can also define other helper functions
-    # Compute normalized histogram
-    threshold = 128
+    #find the bins
+    bins = np.arange(257)
+    i = np.arange(256)
+    #compute normalized histogram
+    p, _ = np.histogram(im, bins=bins, density=True)
+    #compute cumulative sums
+    P1 = lambda k: np.sum(p[:k])
+    #compute cumulative means
+    cum_mean = lambda k: np.sum(i[:k]*p[:k])
+    #compute the global mean
+    MG = np.sum(i*p)
+    #compute between-class variance
+    sigmasq = lambda k: (MG*P1(k)-cum_mean(k))**2/(P1(k)*(1-P1(k))) if P1(k) > 0 else -999
+    #find the threshold
+    threshold = np.average(np.argmax([sigmasq(k) for k in i]))
     return threshold
     ### END YOUR CODE HERE ###
-
 
 if __name__ == "__main__":
     # DO NOT CHANGE
