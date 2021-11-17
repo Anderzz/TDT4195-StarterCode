@@ -40,7 +40,7 @@ def otsu_thresholding(im: np.ndarray) -> int:
     #compute the global mean
     MG = np.sum(i*p)
     #compute between-class variance
-    sigmasq = lambda k: (MG*P1(k)-cum_mean(k))**2/(P1(k)*(1-P1(k))) if P1(k) > 0 else -999
+    sigmasq = lambda k: (MG*P1(k)-cum_mean(k))**2/(P1(k)*(1-P1(k))) if P1(k) > 0 else 0
     #find the threshold
     threshold = np.average(np.argmax([sigmasq(k) for k in i]))
     return threshold
