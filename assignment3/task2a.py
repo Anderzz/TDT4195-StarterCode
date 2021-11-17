@@ -43,6 +43,9 @@ def otsu_thresholding(im: np.ndarray) -> int:
     sigmasq = lambda k: (MG*P1(k)-cum_mean(k))**2/(P1(k)*(1-P1(k))) if P1(k) > 0 else 0
     #find the threshold
     threshold = np.average(np.argmax([sigmasq(k) for k in i]))
+    #check the against the real solution
+    otsu_real = threshold_otsu(im)
+    print("correct value:", otsu_real)
     return threshold
     ### END YOUR CODE HERE ###
 

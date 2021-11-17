@@ -1,11 +1,17 @@
 import utils
 import numpy as np
+import matplotlib.pyplot as plt
 
+def get_neighbours(p):
+    #get the 8 neighbours
+    return [(p[0]-1, p[1]+1),(p[0],p[1]+1),(p[0]+1, p[1]+1),
+             (p[0]-1, p[1]),(p[0]+1, p[1]),
+             (p[0]-1, p[1]-1),(p[0], p[1]-1),(p[0]+1, p[1]-1)]
 
 def region_growing(im: np.ndarray, seed_points: list, T: int) -> np.ndarray:
     """
         A region growing algorithm that segments an image into 1 or 0 (True or False).
-        Finds candidate pixels with a Moore-neighborhood (8-connectedness). 
+        Finds candidate pip[0]els with a Moore-neighborhood (8-connectedness). 
         Uses pixel intensity thresholding with the threshold T as the homogeneity criteria.
         The function takes in a grayscale image and outputs a boolean image
 
@@ -19,10 +25,25 @@ def region_growing(im: np.ndarray, seed_points: list, T: int) -> np.ndarray:
     """
     # START YOUR CODE HERE ### (You can change anything inside this block)
     # You can also define other helper functions
+    
     segmented = np.zeros_like(im).astype(bool)
+    seed = seed_points[0]
     im = im.astype(float)
+    point_list = [tuple(p) for p in seed_points]
     for row, col in seed_points:
         segmented[row, col] = True
+    icount = 0
+    while point_list:
+        icount+=1
+        point = point_list.pop()
+        neighbours = get_neighbours(point)
+        try:
+            for neighbour in neighbours:
+                if not segmented[neighbour[0], neighbour[1]] and np.abs(im[seed[0], seed[1]]-im[neighbour[0], neighbour[1]]) < T:
+                    point_list.append(neighbour)
+                    segmented[neighbour[0], neighbour[1]] = True
+        except IndexError:
+            pass
     return segmented
     ### END YOUR CODE HERE ###
 
@@ -42,7 +63,7 @@ if __name__ == "__main__":
 
     assert im.shape == segmented_image.shape, "Expected image shape ({}) to be same as thresholded image shape ({})".format(
         im.shape, segmented_image.shape)
-    assert segmented_image.dtype == np.bool, "Expected thresholded image dtype to be np.bool. Was: {}".format(
+    assert segmented_image.dtype == bool, "Expected thresholded image dtype to be np.bool. Was: {}".format(
         segmented_image.dtype)
 
     segmented_image = utils.to_uint8(segmented_image)
