@@ -22,7 +22,11 @@ def distance_transform(im: np.ndarray) -> np.ndarray:
         [1, 1, 1],
         [1, 1, 1]
     ], dtype=bool)
+
     result = im.astype(np.int32)
+    while np.any(im) == True:
+        im = skimage.morphology.erosion(im, structuring_element)
+        result += im
     return result
     ### END YOUR CODE HERE ###
 
