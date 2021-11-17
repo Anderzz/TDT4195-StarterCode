@@ -32,9 +32,7 @@ def region_growing(im: np.ndarray, seed_points: list, T: int) -> np.ndarray:
     point_list = [tuple(p) for p in seed_points]
     for row, col in seed_points:
         segmented[row, col] = True
-    icount = 0
     while point_list:
-        icount+=1
         point = point_list.pop()
         neighbours = get_neighbours(point)
         try:

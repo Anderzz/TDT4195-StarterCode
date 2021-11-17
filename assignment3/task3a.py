@@ -2,6 +2,7 @@ import utils
 import skimage
 import skimage.morphology
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def remove_noise(im: np.ndarray) -> np.ndarray:
@@ -14,6 +15,8 @@ def remove_noise(im: np.ndarray) -> np.ndarray:
     """
     # START YOUR CODE HERE ### (You can change anything inside this block)
     # You can also define other helper functions
+    im = skimage.morphology.opening(im, skimage.morphology.disk(7))
+    im = skimage.morphology.dilation(im, skimage.morphology.disk(6))
     return im
     ### END YOUR CODE HERE ###
 
