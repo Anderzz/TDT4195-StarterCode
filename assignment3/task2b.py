@@ -29,16 +29,20 @@ def region_growing(im: np.ndarray, seed_points: list, T: int) -> np.ndarray:
     segmented = np.zeros_like(im).astype(bool)
     seed = seed_points[0]
     im = im.astype(float)
-    point_list = [tuple(p) for p in seed_points]
+    #make a list of tuples
+    frontier = [tuple(p) for p in seed_points]
+    #set the pixels corresponding to the seedpoints to True
     for row, col in seed_points:
         segmented[row, col] = True
-    while point_list:
-        point = point_list.pop()
+    while frontier:
+        point = frontier.pop()
         neighbours = get_neighbours(point)
         try:
             for neighbour in neighbours:
+                #check if we have not already visited
+                #and is within the tolerance
                 if not segmented[neighbour[0], neighbour[1]] and np.abs(im[seed[0], seed[1]]-im[neighbour[0], neighbour[1]]) < T:
-                    point_list.append(neighbour)
+                    frontier.append(neighbour)
                     segmented[neighbour[0], neighbour[1]] = True
         except IndexError:
             pass
